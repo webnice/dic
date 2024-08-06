@@ -80,3 +80,14 @@ func TestTStatus_IsEqualCode(t *testing.T) {
 		t.Errorf("функция IsEqual(), вернулся: %t, ожидался: %t", ok, false)
 	}
 }
+
+func TestTStatus_Bytes(t *testing.T) {
+	var (
+		t1 IStatus
+	)
+
+	t1 = NewStatus("", http.StatusOK)
+	if string(t1.Bytes()) != t1.String() {
+		t.Errorf("ошибка в функции Bytes() или String()")
+	}
+}

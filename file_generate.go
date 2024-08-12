@@ -250,7 +250,7 @@ func priorityReplace(data map[string]*MimeTypeItem, prio []*MimeTypeItem) map[st
 	return data
 }
 
-func die(f func() error, ft string, ag ...interface{}) {
+func die(f func() error, ft string, ag ...any) {
 	var err error
 
 	if err = f(); err == nil {

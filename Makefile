@@ -41,7 +41,7 @@ upd:
 ## Кодогенерация (run only during development).
 ## All generating files are included in a .gogenerate file.
 gen:
-	@for PKGNAME in $(GOGENERATE); do GOPATH="$(DIR)" go generate $${PKGNAME}; done
+	@for PKGNAME in $(GOGENERATE); do go generate $${PKGNAME}; done
 .PHONY: gen
 
 ## Testing one or multiple packages as well as applications with reporting on the percentage of test coverage

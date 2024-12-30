@@ -26,13 +26,13 @@ func makeTestCustomErrors() (ret *TestCustomError) {
 	)
 
 	ret = &TestCustomError{
+		Errors:          Error(),
 		NotFound:        NewError(errNotFound, "название объекта"),
 		Fatality:        NewError(errFatality),
 		AnotherNilError: nil,
 		ExitCodeNotNull: NewError(errExitCodeNotNull).CodeU8().Set(99),
 		TwoArgs:         NewError(errTwoArgs, "аргумент 1", "вложенная ошибка"),
 	}
-	ret.Errors.Unknown = Error().Unknown
 
 	return
 }

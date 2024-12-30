@@ -30,7 +30,7 @@ func TestHeader(t *testing.T) {
 }
 
 func TestTHeader_IsEqual(t *testing.T) {
-	const newHeader1, newHeader2 = "X-Completely-New-Header", "X-New-Header"
+	const newHeader1, newHeader2 = "X-Completely-Bind-Header", "X-Bind-Header"
 	var (
 		h1, h2 IHeader
 		ok     bool

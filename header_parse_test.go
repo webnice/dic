@@ -17,7 +17,7 @@ func TestParseHeader(t *testing.T) {
 }
 
 func TestNewHeader(t *testing.T) {
-	const newHeader = "X-Completely-New-Header"
+	const newHeader = "X-Completely-Bind-Header"
 	var (
 		cth IHeader
 		xnw IHeader

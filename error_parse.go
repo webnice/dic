@@ -49,6 +49,9 @@ func (errs *Errors) ParseError(e error, db ...any) (ret IError) {
 			if rv.Field(n).Kind() == reflect.Struct {
 				continue
 			}
+			if !rv.Field(n).CanInterface() {
+				continue
+			}
 			errors.As(rv.Field(n).Interface().(*tError), &bind)
 			if errors.Is(bind.anchor, e) || strings.EqualFold(bind.anchor.Error(), e.Error()) {
 				break
@@ -79,7 +82,6 @@ func (errs *Errors) ParseError(e error, db ...any) (ret IError) {
 // NewError Создание объекта под интерфейс IError,
 // функция предназначена для формирования настраиваемых справочников.
 func (errs *Errors) NewError(template string, arg ...string) IError {
-	const codeMin = 1
 	var erro *tError
 
 	template = strings.TrimSpace(template)

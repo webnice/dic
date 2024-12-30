@@ -71,6 +71,17 @@ func (eso *tError) String() string { return fmt.Sprintf(eso.template, eso.args..
 // Bytes Представление ошибки в качестве среза байт, используется якорь и аргументы ошибки.
 func (eso *tError) Bytes() []byte { return []byte(eso.String()) }
 
+// Is Сравнение ошибок, вернётся истина если ошибки эквиваленты.
+func (eso *tError) Is(e error) (ret bool) {
+	var ierr IError
+
+	if ierr = singletonErrors.ParseError(e, eso); ierr != nil {
+		ret = eso.IsEqual(ierr)
+	}
+
+	return
+}
+
 // IsEqual Сравнение ошибок, вернётся истина если ошибки эквиваленты.
 func (eso *tError) IsEqual(e IError) (ret bool) {
 	if e == nil {
@@ -86,7 +97,7 @@ func (eso *tError) IsEqual(e IError) (ret bool) {
 	return
 }
 
-// IsEqualCode Стравнение ошибок только по коду ошибки.
+// IsEqualCode Сравнение ошибок только по коду ошибки.
 func (eso *tError) IsEqualCode(e IError) (ret bool) {
 	ret = eso.CodeU64().Get() == e.CodeU64().Get()
 	return

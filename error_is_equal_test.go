@@ -26,7 +26,7 @@ func TestTError_IsEqual(t *testing.T) {
 	}
 	// Ошибка совпадающая по якорю.
 	err = errs.Fatality.Bind()
-	if tmpT = errs.Fatality.IsEqual(ParseError(err)); !tmpT {
+	if tmpT = errs.Fatality.Is(err); !tmpT {
 		t.Fatalf("IsEqual(), получено %t, ошидалось %t", tmpT, true)
 		return
 	}
@@ -38,7 +38,7 @@ func TestTError_IsEqual(t *testing.T) {
 		return
 	}
 	// Проверка полного по контенту.
-	if tmpT = errs.Fatality.IsEqual(ParseError(err)); !tmpT {
+	if tmpT = errs.Fatality.Is(err); !tmpT {
 		t.Fatalf("IsEqual(), получено %t, ошидалось %t", tmpT, true)
 		return
 	}
@@ -60,18 +60,18 @@ func TestTError_IsEqual(t *testing.T) {
 		return
 	}
 	// Ошибки так же не должны совпадать с вложенными ошибками.
-	if tmpT = ier1.IsEqual(ParseError(err1)); tmpT {
+	if tmpT = ier1.Is(err1); tmpT {
 		t.Fatalf("IsEqual(), получено %t, ошидалось %t", tmpT, false)
 		return
 	}
-	if tmpT = ier2.IsEqual(ParseError(err2)); tmpT {
+	if tmpT = ier2.Is(err2); tmpT {
 		t.Fatalf("IsEqual(), получено %t, ошидалось %t", tmpT, false)
 		return
 	}
 	// Ошибка созданная на основе якоря ошибки.
 	err = errs.Fatality.Anchor()
 	ier1 = errs.ParseError(err, errs)
-	if tmpT = ier1.IsEqual(errs.ParseError(err)); !tmpT {
+	if tmpT = ier1.Is(err); !tmpT {
 		t.Fatalf("IsEqual(), получено %t, ошидалось %t", tmpT, true)
 		return
 	}

@@ -36,9 +36,7 @@ func TestParseStatusCodeNil(t *testing.T) {
 }
 
 func TestParseStatusCode(t *testing.T) {
-	var status IStatus
-
-	status = ParseStatusCode(400)
+	var status = ParseStatusCode(400)
 	if status == nil {
 		t.Fatalf("функция ParseStatusCode(), вернулся nil, ожидался не nil объект")
 	}

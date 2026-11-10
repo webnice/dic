@@ -24,12 +24,12 @@ func TestTError_Bytes(t *testing.T) {
 	err = ier.Bind(tplA, tplB)
 	ier = ParseError(err)
 	if tmpT = strings.EqualFold(ier.String(), fmt.Sprintf(tpl, tplA, tplB)); !tmpT {
-		t.Fatalf("String(), получено %t, ошидалось %t", tmpT, true)
+		t.Fatalf("String(), получено %t, ожидалось %t", tmpT, true)
 		return
 	}
 	buf = bytes.NewBufferString(fmt.Sprintf(tpl, tplA, tplB))
 	if tmpT = bytes.EqualFold(ier.Bytes(), buf.Bytes()); !tmpT {
-		t.Fatalf("Bytes(), получено %t, ошидалось %t", tmpT, true)
+		t.Fatalf("Bytes(), получено %t, ожидалось %t", tmpT, true)
 		return
 	}
 }

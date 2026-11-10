@@ -109,3 +109,15 @@ func TestTMethod_IsEqualFull(t *testing.T) {
 		}
 	}
 }
+
+// TestTMethod_IsEqualFullBits Проверка сравнения методов с одинаковым именем и разными битовыми масками.
+func TestTMethod_IsEqualFullBits(t *testing.T) {
+	// Метод с тем же именем, но с другой битовой маской не эквивалентен.
+	if Method().Get.IsEqualFull(&tMethod{name: "get", bits: 1 << 20}) {
+		t.Errorf("функция IsEqualFull(), вернулось: %t, ожидалось: %t", true, false)
+	}
+	// Метод с тем же именем и той же битовой маской эквивалентен.
+	if !Method().Get.IsEqualFull(&tMethod{name: "GET", bits: 1}) {
+		t.Errorf("функция IsEqualFull(), вернулось: %t, ожидалось: %t", false, true)
+	}
+}

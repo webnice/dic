@@ -12,8 +12,35 @@ type TestCustomError struct {
 	AnotherNilError IError
 	// ExitCodeNotNull ошибка с указанием кода.
 	ExitCodeNotNull IError
-	// TwoArgs ошибка с двумя аргументами, первый аргумент %q, второй аргумент: %w.
+	// TwoArgs ошибка с двумя аргументами, первый аргумент %q, второй аргумент: %s.
 	TwoArgs IError
+}
+
+// TestCustomDictionary Структура справочника ошибок с нестандартными полями, используется для тестирования парсера ошибок.
+type TestCustomDictionary struct {
+	// Встраивание предопределённых ошибок.
+	Errors
+	// Fatality обычная ошибка справочника.
+	Fatality IError
+	// NilError объект ошибки не инициализирован и оставлен nil.
+	NilError IError
+	// Anchorless объект ошибки без якоря.
+	Anchorless IError
+	// NotAnError строковое поле, не являющееся ошибкой.
+	NotAnError string
+}
+
+// Создание объекта тестового справочника ошибок с нестандартными полями.
+func makeTestCustomDictionary() (ret *TestCustomDictionary) {
+	ret = &TestCustomDictionary{
+		Errors:     Error(),
+		Fatality:   NewError("ошибка без аргументов"),
+		NilError:   nil,
+		Anchorless: &tError{},
+		NotAnError: "не ошибка",
+	}
+
+	return
 }
 
 // Создание объекта тестового справочника ошибок.

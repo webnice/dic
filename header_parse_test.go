@@ -23,7 +23,7 @@ func TestNewHeader(t *testing.T) {
 		xnw IHeader
 	)
 
-	// Проверка, должен вернуться объект существующего стандартного метода.
+	// Проверка, должен вернуться объект существующего стандартного заголовка.
 	cth = NewHeader("content-Type")
 	if cth == nil {
 		t.Errorf("функция NewHeader(), вернулся nil, ожидался не nil объект")

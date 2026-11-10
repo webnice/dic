@@ -24,43 +24,43 @@ func TestTError_CSet_CGet(t *testing.T) {
 		return
 	}
 	if errI.CodeI().Get() != 99 {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeI().Get(), 99)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeI().Get(), 99)
 		return
 	}
 	if errI.CodeI8().Get() != 99 {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeI8().Get(), 99)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeI8().Get(), 99)
 		return
 	}
 	if errI.CodeI16().Get() != 99 {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeI16().Get(), 99)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeI16().Get(), 99)
 		return
 	}
 	if errI.CodeI32().Get() != 99 {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeI32().Get(), 99)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeI32().Get(), 99)
 		return
 	}
 	if errI.CodeI64().Get() != 99 {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeI64().Get(), 99)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeI64().Get(), 99)
 		return
 	}
 	if errI.CodeU().Get() != 99 {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeU().Get(), 99)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeU().Get(), 99)
 		return
 	}
 	if errI.CodeU8().Get() != 99 {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeU8().Get(), 99)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeU8().Get(), 99)
 		return
 	}
 	if errI.CodeU16().Get() != 99 {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeU16().Get(), 99)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeU16().Get(), 99)
 		return
 	}
 	if errI.CodeU32().Get() != 99 {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeU32().Get(), 99)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeU32().Get(), 99)
 		return
 	}
 	if errI.CodeU64().Get() != 99 {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeU64().Get(), 99)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeU64().Get(), 99)
 		return
 	}
 
@@ -68,21 +68,21 @@ func TestTError_CSet_CGet(t *testing.T) {
 	err1 = errs.ExitCodeNotNull.CodeU8().Set(math.MaxUint8).Bind()
 	errors.As(err1, &errI)
 	if errI.CodeU8().Get() != math.MaxUint8 {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeU8().Get(), math.MaxUint8)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeU8().Get(), math.MaxUint8)
 		return
 	}
 	// int Изменение значения в справочнике и создание новой ошибки.
 	err1 = errs.ExitCodeNotNull.CodeI().Set(math.MaxInt).Bind()
 	errors.As(err1, &errI)
 	if errI.CodeI().Get() != math.MaxInt {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeI().Get(), math.MaxInt)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeI().Get(), math.MaxInt)
 		return
 	}
 	// int64 Изменение значения в справочнике и создание новой ошибки.
 	err1 = errs.ExitCodeNotNull.CodeI64().Set(math.MaxInt64).Bind()
 	errors.As(err1, &errI)
 	if errI.CodeI64().Get() != math.MaxInt64 {
-		t.Fatalf("не верное значение кода, получено %d, ошидалось %d", errI.CodeI64().Get(), math.MaxInt64)
+		t.Fatalf("не верное значение кода, получено %d, ожидалось %d", errI.CodeI64().Get(), math.MaxInt64)
 		return
 	}
 	// uint64 Изменение значения в справочнике и создание новой ошибки.
@@ -90,7 +90,7 @@ func TestTError_CSet_CGet(t *testing.T) {
 	errors.As(err1, &errI)
 	if errI.CodeU64().Get() != math.MaxUint64 {
 		t.Fatalf(
-			"не верное значение кода, получено %d, ошидалось %s",
+			"не верное значение кода, получено %d, ожидалось %s",
 			errI.CodeU64().Get(),
 			strconv.FormatUint(math.MaxUint64, 10),
 		)
@@ -101,7 +101,7 @@ func TestTError_CSet_CGet(t *testing.T) {
 	err2 = errs.ExitCodeNotNull.CodeI64().Set(math.MaxInt64 - 1).Bind()
 	errI = errs.Unbind(err1)
 	if tmpT = errs.Unbind(err2).IsEqualCode(errI); !tmpT {
-		t.Fatalf("IsEqualCode(), получено %t, ошидалось %t", tmpT, true)
+		t.Fatalf("IsEqualCode(), получено %t, ожидалось %t", tmpT, true)
 		return
 	}
 }

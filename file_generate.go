@@ -14,6 +14,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"sort"
 	"strings"
 	"text/template"
 	"time"
@@ -143,6 +144,12 @@ func Main() (ret int) {
 	deduplicate = priorityReplace(deduplicate, prio)
 	// Удаление повторов среди расширений имён файлов.
 	deduplicateExtensionSlice(deduplicate)
+	// Сортировка типов по возрастанию для детерминированности генерируемого файла.
+	types := make([]*MimeTypeItem, 0, len(deduplicate))
+	for tn := range deduplicate {
+		types = append(types, deduplicate[tn])
+	}
+	sort.SliceStable(types, func(i, j int) bool { return strings.Compare(types[i].Type, types[j].Type) == -1 })
 	// Генерация файла.
 	buf.Reset()
 	// Разбор шаблона.
@@ -177,11 +184,11 @@ func Main() (ret int) {
 		return packageTemplate.Execute(buf, struct {
 			Timestamp time.Time
 			Folder    string
-			Types     map[string]*MimeTypeItem
+			Types     []*MimeTypeItem
 		}{
 			Timestamp: time.Now().In(time.UTC),
 			Folder:    sourceData,
-			Types:     deduplicate,
+			Types:     types,
 		})
 	}, "шаблонизатор завершился ошибкой: %s")
 	// Форматирование кода и сохранение.
@@ -311,6 +318,7 @@ func deduplicateStringSlice(s []string) (ret []string) {
 	for key = range tmp {
 		ret = append(ret, key)
 	}
+	sort.SliceStable(ret, func(i, j int) bool { return strings.Compare(ret[i], ret[j]) == -1 })
 
 	return
 }

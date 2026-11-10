@@ -82,11 +82,7 @@ func TestTStatus_IsEqualCode(t *testing.T) {
 }
 
 func TestTStatus_Bytes(t *testing.T) {
-	var (
-		t1 IStatus
-	)
-
-	t1 = NewStatus("", http.StatusOK)
+	var t1 = NewStatus("", http.StatusOK)
 	if string(t1.Bytes()) != t1.String() {
 		t.Errorf("ошибка в функции Bytes() или String()")
 	}

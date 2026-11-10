@@ -33,9 +33,7 @@ type Mimes struct {
 func init() {
 	singletonMimes = Mimes{
 {{- range .}}
-		{{.Name}}: &tMime{main: "{{.Mime.Main}}", subt: "{{.Mime.Subt}}", opts: map[string]string{ {{- range $index, $element := .Mime.Opts}}"{{$index}}": "{{$element}}"
-{{- end -}}
-}},
+		{{.Name}}: &tMime{main: "{{.Mime.Main}}", subt: "{{.Mime.Subt}}", opts: map[string]string{ {{- range .Mime.Opts}}"{{.Key}}": "{{.Value}}", {{end -}} }},
 {{- end}}
 	}
 }
@@ -44,9 +42,15 @@ func init() {
 
 // TMime Структура объекта MIME типа.
 type TMime struct {
-	Main string            // Основной тип MIME.
-	Subt string            // Подтип MIME.
-	Opts map[string]string // Атрибуты MIME типа.
+	Main string       // Основной тип MIME.
+	Subt string       // Подтип MIME.
+	Opts []TSourceOpt // Атрибуты MIME типа, отсортированные по ключу.
+}
+
+// TSourceOpt Структура атрибута MIME типа.
+type TSourceOpt struct {
+	Key   string // Ключ атрибута.
+	Value string // Значение атрибута.
 }
 
 type source struct {
@@ -56,6 +60,7 @@ type source struct {
 	Mime        *TMime
 }
 
+//goland:noinspection DuplicatedCode
 func main() {
 	var (
 		err    error
@@ -113,18 +118,22 @@ func readSource(f string) (ret []*source, err error) {
 	return
 }
 
+//goland:noinspection DuplicatedCode
 func parseMime(s string) *TMime {
 	const keySlash, keyEqual, keySemicolon = "/", "=", ";"
 	var (
 		clean func(string) string
 		mto   *TMime
+		om    map[string]string
+		keys  []string
+		key   string
 		sss   []string
 		tmp   []string
 		n     int
 	)
 
 	clean = func(s string) string { return strings.ToLower(strings.TrimSpace(s)) }
-	mto, sss = &TMime{Opts: make(map[string]string)}, strings.Split(s, keySemicolon)
+	mto, sss = &TMime{}, strings.Split(s, keySemicolon)
 	switch tmp = strings.Split(sss[0], keySlash); len(tmp) {
 	case 1:
 		mto.Main = clean(tmp[0])
@@ -135,11 +144,21 @@ func parseMime(s string) *TMime {
 	if len(sss) < 2 {
 		return mto
 	}
+	om = make(map[string]string)
 	for n = 1; n < len(sss); n++ {
 		switch tmp = strings.Split(sss[n], keyEqual); len(tmp) {
 		case 2:
-			mto.Opts[clean(tmp[0])] = clean(tmp[1])
+			om[clean(tmp[0])] = clean(tmp[1])
 		}
+	}
+	keys = make([]string, 0, len(om))
+	for key = range om {
+		keys = append(keys, key)
+	}
+	sort.SliceStable(keys, func(i, j int) bool { return strings.Compare(keys[i], keys[j]) == -1 })
+	mto.Opts = make([]TSourceOpt, 0, len(keys))
+	for n = range keys {
+		mto.Opts = append(mto.Opts, TSourceOpt{Key: keys[n], Value: om[keys[n]]})
 	}
 
 	return mto

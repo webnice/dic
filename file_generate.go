@@ -9,7 +9,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"go/format"
-	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -28,6 +27,14 @@ const (
 	dataFormatIanaCSV     = "csv"                   // Формат данных https://www.iana.org/assignments/media-types/media-types.xhtml.
 	dataFormatXCustom     = "x-custom"              // Формат приоритетных настраиваемых типов MIME.
 	fileGitKeep           = "gitkeep"               // Файл .gitkeep.
+	errReadDirectory      = "чтение директории %q, прервано ошибкой: %s"
+	errReadFileBody       = "чтение тела файла %q, прервано ошибкой: %s"
+	errParseStructure     = "разбор структуры файла %q прерван ошибкой: %s"
+	errTemplateSyntax     = "ошибка в синтаксисе шаблона: %s"
+	errTemplateExecute    = "шаблонизатор завершился ошибкой: %s"
+	errSourceFormat       = "форматирование созданного .go файла прервано ошибкой: %s"
+	errResultWrite        = "создание файла %q прервано ошибкой: %s"
+	errPanic              = "%v"
 )
 
 var (
@@ -73,21 +80,22 @@ func Main() (ret int) {
 		dirContent           []os.DirEntry
 		mimeTypes, tmp, prio []*MimeTypeItem
 		deduplicate          map[string]*MimeTypeItem
-		ext, filename        string
+		ext, filename, tn    string
 		i, n, j              int
 		ok                   bool
 		data                 []byte
+		types                []*MimeTypeItem
 	)
 
 	die(func() error { dirContent, err = os.ReadDir(sourceData); return err },
-		"чтение директории %q, прервано ошибкой: %s", sourceData)
+		errReadDirectory, sourceData)
 	for i = range dirContent {
 		if dirContent[i].IsDir() {
 			continue
 		}
 		filename = path.Join(sourceData, dirContent[i].Name())
 		switch die(func() error { buf, ext, err = ReadFileBody(filename); return err },
-			"чтение тела файла %q, прервано ошибкой: %s", filename); ext {
+			errReadFileBody, filename); ext {
 		case fileGitKeep:
 			continue
 		case dataFormatSystem:
@@ -102,7 +110,7 @@ func Main() (ret int) {
 			log.Printf(errUnknownFormat, ext, filename)
 			continue
 		}
-		if die(func() error { return err }, "разбор структуры файла %q прерван ошибкой: %s", filename); len(tmp) > 0 {
+		if die(func() error { return err }, errParseStructure, filename); len(tmp) > 0 {
 			mimeTypes = append(mimeTypes, tmp...)
 			tmp = tmp[:0]
 		}
@@ -145,8 +153,8 @@ func Main() (ret int) {
 	// Удаление повторов среди расширений имён файлов.
 	deduplicateExtensionSlice(deduplicate)
 	// Сортировка типов по возрастанию для детерминированности генерируемого файла.
-	types := make([]*MimeTypeItem, 0, len(deduplicate))
-	for tn := range deduplicate {
+	types = make([]*MimeTypeItem, 0, len(deduplicate))
+	for tn = range deduplicate {
 		types = append(types, deduplicate[tn])
 	}
 	sort.SliceStable(types, func(i, j int) bool { return strings.Compare(types[i].Type, types[j].Type) == -1 })
@@ -156,13 +164,13 @@ func Main() (ret int) {
 	die(func() (err error) {
 		defer func() {
 			if e := recover(); e != nil {
-				err = fmt.Errorf("%s", e)
+				err = fmt.Errorf(errPanic, e)
 			}
 		}()
 		packageTemplate, err = template.New(resultFile).
 			Funcs(map[string]any{
 				"arr": func(in []string) (ret string) {
-					for n := range in {
+					for n = range in {
 						if ret != "" {
 							ret += ", "
 						}
@@ -173,12 +181,12 @@ func Main() (ret int) {
 			}).
 			Parse(resultTemplate)
 		return
-	}, "ошибка в синтаксисе шаблона: %s")
+	}, errTemplateSyntax)
 	// Формирование данных на основе шаблона.
 	die(func() (err error) {
 		defer func() {
 			if e := recover(); e != nil {
-				err = fmt.Errorf("%s", e)
+				err = fmt.Errorf(errPanic, e)
 			}
 		}()
 		return packageTemplate.Execute(buf, struct {
@@ -190,15 +198,13 @@ func Main() (ret int) {
 			Folder:    sourceData,
 			Types:     types,
 		})
-	}, "шаблонизатор завершился ошибкой: %s")
+	}, errTemplateExecute)
 	// Форматирование кода и сохранение.
 	if data, err = format.Source(buf.Bytes()); err != nil {
-		log.Fatalf("форматирование созданного .go файла прервано ошибкой: %s", err)
-		return
+		log.Fatalf(errSourceFormat, err)
 	}
 	if err = os.WriteFile(resultFile, data, os.FileMode(0644)); err != nil {
-		log.Fatalf("создание файла %q прервано ошибкой: %s", resultFile, err)
-		return
+		log.Fatalf(errResultWrite, resultFile, err)
 	}
 
 	return
@@ -330,7 +336,7 @@ func ReadFileBody(filename string) (ret *bytes.Buffer, ext string, err error) {
 		str []string
 	)
 
-	if buf, err = ioutil.ReadFile(filename); err != nil {
+	if buf, err = os.ReadFile(filename); err != nil {
 		return
 	}
 	ret = bytes.NewBuffer(buf)
@@ -593,9 +599,8 @@ func ParseDataFormatXCustom(data *bytes.Buffer) (ret []*MimeTypeItem, err error)
 		ret = append(ret, &MimeTypeItem{
 			Type:      strings.ToLower(strings.TrimSpace(line[0])),
 			Extension: append([]string{}, ext...),
-			Src:       text,
+			Src:       dataFormatXCustom,
 		})
-		ret = filterMimeTypeItem(ret)
 	}
 	ret = filterMimeTypeItem(ret)
 	for n = range ret {

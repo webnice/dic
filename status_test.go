@@ -7,6 +7,11 @@ import (
 )
 
 func TestStatus(t *testing.T) {
+	const (
+		tplCount    = "справочник статусов HTTP ответов содержит %d элементов, ожидалось больше %d"
+		tplField    = "справочник статусов HTTP ответов, поле %q, тип поля %q, ожидалось: %q"
+		typeIStatus = "dic.IStatus"
+	)
 	var (
 		s  Statuses
 		n  int
@@ -17,51 +22,62 @@ func TestStatus(t *testing.T) {
 	s = Status()
 	rt = reflect.TypeOf(s)
 	if rt.NumField() <= 0 {
-		t.Errorf("справочник статусов HTTP ответов содержит %d элементов, ожидалось больше %d", rt.NumField(), 0)
+		t.Errorf(tplCount, rt.NumField(), 0)
 	}
 	for n = 0; n < rt.NumField(); n++ {
 		sf = rt.Field(n)
-		if sf.Type.String() != "dic.IStatus" {
-			t.Errorf(
-				"справочник статусов HTTP ответов, поле %q, тип поля %q, ожидалось: %q",
-				sf.Name, sf.Type.String(), "dic.IStatus",
-			)
+		if sf.Type.String() != typeIStatus {
+			t.Errorf(tplField, sf.Name, sf.Type.String(), typeIStatus)
 		}
 	}
 }
 
 func TestTStatus_IsEqual(t *testing.T) {
+	const (
+		tplParseStatus = "функция ParseStatusString(), вернулся объект: \"%v\", ожидался \"%v\""
+		tplIsEqualObj  = "функция IsEqual(), вернулся объект: \"%v\", ожидался объект: \"%v\""
+	)
 	var (
-		tests = []struct {
+		tests []struct {
 			text   string
 			status IStatus
 			eq     bool
-		}{
-			{"", Status().Unknown, true},
-			{"HjzT89pyKWUfSvLJFsMZ", nil, true},
-			{"HjzT89pyKWUfSvLJFsMZ", Status().Unknown, false},
 		}
 		status IStatus
 		n      int
 	)
 
+	// Таблица тестовых данных.
+	tests = []struct {
+		text   string
+		status IStatus
+		eq     bool
+	}{
+		{"", Status().Unknown, true},
+		{"HjzT89pyKWUfSvLJFsMZ", nil, true},
+		{"HjzT89pyKWUfSvLJFsMZ", Status().Unknown, false},
+	}
 	for n = range tests {
 		status = ParseStatusString(tests[n].text)
 		if tests[n].status == nil && tests[n].eq && status != tests[n].status {
-			t.Errorf("функция ParseStatusString(), вернулся объект: \"%v\", ожидался \"%v\"", status, nil)
+			t.Errorf(tplParseStatus, status, nil)
 			continue
 		}
 		if tests[n].status == nil {
 			continue
 		}
 		if tests[n].status.IsEqual(status) != tests[n].eq {
-			t.Errorf("функция IsEqual(), вернулся объект: \"%v\", ожидался объект: \"%v\"", status, tests[n].status)
+			t.Errorf(tplIsEqualObj, status, tests[n].status)
 		}
 	}
 }
 
 func TestTStatus_IsEqualCode(t *testing.T) {
-	const newStatusText, newStatusCode = "xm9N3uCr0e6Rvs58eH3S", http.StatusOK
+	const (
+		newStatusText, newStatusCode = "xm9N3uCr0e6Rvs58eH3S", http.StatusOK
+		tplIsEqualCode               = "функция IsEqualCode(), вернулся: %t, ожидался: %t"
+		tplIsEqual                   = "функция IsEqual(), вернулся: %t, ожидался: %t"
+	)
 	var (
 		t1 IStatus
 		t2 IStatus
@@ -70,20 +86,23 @@ func TestTStatus_IsEqualCode(t *testing.T) {
 
 	t1 = NewStatus("", http.StatusAccepted)
 	if ok = Status().Accepted.IsEqualCode(http.StatusAccepted); !ok {
-		t.Errorf("функция IsEqualCode(), вернулся: %t, ожидался: %t", ok, true)
+		t.Errorf(tplIsEqualCode, ok, true)
 	}
 	if ok = Status().Accepted.IsEqual(t1); !ok {
-		t.Errorf("функция IsEqual(), вернулся: %t, ожидался: %t", ok, true)
+		t.Errorf(tplIsEqual, ok, true)
 	}
 	t2 = NewStatus(newStatusText, newStatusCode)
 	if ok = Status().Accepted.IsEqual(t2); ok {
-		t.Errorf("функция IsEqual(), вернулся: %t, ожидался: %t", ok, false)
+		t.Errorf(tplIsEqual, ok, false)
 	}
 }
 
 func TestTStatus_Bytes(t *testing.T) {
-	var t1 = NewStatus("", http.StatusOK)
+	const errBytesString = "ошибка в функции Bytes() или String()"
+	var t1 IStatus
+
+	t1 = NewStatus("", http.StatusOK)
 	if string(t1.Bytes()) != t1.String() {
-		t.Errorf("ошибка в функции Bytes() или String()")
+		t.Errorf(errBytesString)
 	}
 }

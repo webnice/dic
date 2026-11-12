@@ -7,8 +7,11 @@ import (
 
 func TestTError_TNew(t *testing.T) {
 	const (
-		errT = "Когда не можешь ничего поделать, просто прими это (c) %q."
-		errA = "Доктор Хаус"
+		errT       = "Когда не можешь ничего поделать, просто прими это (c) %q."
+		errA       = "Доктор Хаус"
+		tplAnchor  = "Anchor(), получено %q, ожидалось %q"
+		tplTArg    = "TArg(), получено %v, ожидалось %v"
+		tplIsEqual = "IsEqual(), получено %t, ожидалось %t"
 	)
 	var (
 		errs    *TestCustomError
@@ -30,25 +33,21 @@ func TestTError_TNew(t *testing.T) {
 	err1 = errs.Fatality.Bind()
 	// Проверка эквивалентности ошибки.
 	if tmpT = errs.Fatality.IsEqual(ParseError(err1)); !tmpT {
-		t.Fatalf("IsEqual(), получено %t, ожидалось %t", tmpT, true)
-		return
+		t.Fatalf(tplIsEqual, tmpT, true)
 	}
 	// Изменение ошибки в справочнике ошибок.
 	_ = errs.Fatality.TNew(errT, []string{errA}...)
 	// Сравнение шаблона и аргументов.
 	if tmpS = errs.Fatality.Anchor().Error(); tmpS == originT {
-		t.Fatalf("Anchor(), получено %q, ожидалось %q", tmpS, errT)
-		return
+		t.Fatalf(tplAnchor, tmpS, errT)
 	}
 	if tmpA = errs.Fatality.TArg(); reflect.DeepEqual(tmpA, originA) {
-		t.Fatalf("TArg(), получено %v, ожидалось %v", tmpA, []string{errA})
-		return
+		t.Fatalf(tplTArg, tmpA, []string{errA})
 	}
 	// Сравнение эквивалентности ошибки.
 	err2 = errs.Fatality.Bind()
 	errI = errs.ParseError(err2)
 	if tmpT = errI.IsEqual(ParseError(err1)); tmpT {
-		t.Fatalf("IsEqual(), получено %t, ожидалось %t", tmpT, false)
-		return
+		t.Fatalf(tplIsEqual, tmpT, false)
 	}
 }

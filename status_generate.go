@@ -40,6 +40,10 @@ func init() {
 	}
 }
 `
+	errReadSourceFile  = "чтение файла %q прервано ошибкой: %s"
+	errTemplateExecute = "шаблонизатор завершился с ошибкой: %s"
+	errSourceFormat    = "форматирование созданного .go файла прервано ошибкой: %s"
+	errResultWrite     = "создание файла %q прервано ошибкой: %s"
 )
 
 type source struct {
@@ -59,28 +63,27 @@ func main() {
 	)
 
 	if src, err = readSource(sourceFile); err != nil {
-		log.Fatalf("чтение файла %q прервано ошибкой: %s", sourceFile, err)
-		return
+		log.Fatalf(errReadSourceFile, sourceFile, err)
 	}
 	sort.SliceStable(src, func(i, j int) bool { return src[i].Code < src[j].Code })
 	result = &bytes.Buffer{}
 	tpl = template.Must(template.New(resultFile).Parse(resultTemplate))
 	if err = tpl.Execute(result, src); err != nil {
-		log.Fatalf("шаблонизатор завершился с ошибкой: %s", err)
-		return
+		log.Fatalf(errTemplateExecute, err)
 	}
 	if data, err = format.Source(result.Bytes()); err != nil {
-		log.Fatalf("форматирование созданного .go файла прервано ошибкой: %s", err)
-		return
+		log.Fatalf(errSourceFormat, err)
 	}
 	if err = os.WriteFile(resultFile, data, os.FileMode(0644)); err != nil {
-		log.Fatalf("создание файла %q прервано ошибкой: %s", resultFile, err)
-		return
+		log.Fatalf(errResultWrite, resultFile, err)
 	}
 }
 
 func readSource(f string) (ret []*source, err error) {
-	const sep = "|"
+	const (
+		sep               = "|"
+		errStringToNumber = "преобразование строки %q в число, прервано ошибкой: %s"
+	)
 	var (
 		data    []byte
 		scanner *bufio.Scanner
@@ -97,7 +100,7 @@ func readSource(f string) (ret []*source, err error) {
 			continue
 		}
 		if code, err = strconv.ParseInt(strings.TrimSpace(line[2]), 10, 64); err != nil {
-			err = fmt.Errorf("преобразование строки %q в число, прервано ошибкой: %s", line[2], err)
+			err = fmt.Errorf(errStringToNumber, line[2], err)
 			return
 		}
 		ret = append(ret, &source{

@@ -6,16 +6,27 @@ import (
 )
 
 func TestParseMethod(t *testing.T) {
-	var post = ParseMethod("post")
+	const (
+		tplNil   = "функция ParseMethod(), вернулся nil, ожидался не nil объект"
+		tplParse = "функция NewMethod(), вернулся объект: %v, ожидался объект: %v"
+	)
+	var post IMethod
+
+	post = ParseMethod("post")
 	if post == nil {
-		t.Errorf("функция ParseMethod(), вернулся nil, ожидался не nil объект")
+		t.Errorf(tplNil)
 	}
 	if reflect.ValueOf(post).Pointer() != reflect.ValueOf(Method().Post).Pointer() {
-		t.Errorf("функция NewMethod(), вернулся объект: %v, ожидался объект: %v", post, Method().Post)
+		t.Errorf(tplParse, post, Method().Post)
 	}
 }
 
 func TestNewMethod(t *testing.T) {
+	const (
+		tplNil       = "функция NewMethod(), вернулся nil, ожидался не nil объект"
+		tplNewMethod = "функция NewMethod(), вернулся объект: %v, ожидался объект: %v"
+		tplString    = "функция String(), вернулось значение: %q, ожидалось: %q"
+	)
 	var (
 		get IMethod
 		fsh IMethod
@@ -24,20 +35,20 @@ func TestNewMethod(t *testing.T) {
 	// Проверка, должен вернуться объект существующего стандартного метода.
 	get = NewMethod("get")
 	if get == nil {
-		t.Errorf("функция NewMethod(), вернулся nil, ожидался не nil объект")
+		t.Errorf(tplNil)
 	}
 	if reflect.ValueOf(get).Pointer() != reflect.ValueOf(Method().Get).Pointer() {
-		t.Errorf("функция NewMethod(), вернулся объект: %v, ожидался объект: %v", get, Method().Get)
+		t.Errorf(tplNewMethod, get, Method().Get)
 	}
 	// Новый, не существующий метод.
 	fsh = NewMethod("flush")
 	if fsh == nil {
-		t.Errorf("функция NewMethod(), вернулся nil, ожидался не nil объект")
+		t.Errorf(tplNil)
 	}
 	if fsh.(*tMethod).bits == 0 || fsh.(*tMethod).name != "FLUSH" {
-		t.Errorf("функция NewMethod(), вернулся объект: %v, ожидался объект: %v", fsh, "FLUSH")
+		t.Errorf(tplNewMethod, fsh, "FLUSH")
 	}
 	if fsh.String() != "FLUSH" {
-		t.Errorf("функция String(), вернулось значение: %q, ожидалось: %q", fsh.String(), "FLUSH")
+		t.Errorf(tplString, fsh.String(), "FLUSH")
 	}
 }

@@ -6,19 +6,27 @@ import "strings"
 func Method() Methods { return singletonMethod }
 
 // IsEqual Истина, если HTTP методы эквивалентны.
-func (mdo *tMethod) IsEqual(m IMethod) bool {
-	if m == nil {
-		return false
+func (mdo *tMethod) IsEqual(m IMethod) (ret bool) {
+	var tmo *tMethod
+
+	// Проверка типа объекта, сравнение возможно только с объектом справочника.
+	if tmo, ret = m.(*tMethod); !ret {
+		return
 	}
-	return strings.EqualFold(mdo.name, m.(*tMethod).name)
+	ret = strings.EqualFold(mdo.name, tmo.name)
+
+	return
 }
 
 // IsEqualFull Истина, если HTTP методы эквивалентны, сравнивается и метод и битовая маска.
 func (mdo *tMethod) IsEqualFull(m IMethod) (ret bool) {
-	if m == nil {
-		return false
+	var tmo *tMethod
+
+	// Проверка типа объекта, сравнение возможно только с объектом справочника.
+	if tmo, ret = m.(*tMethod); !ret {
+		return
 	}
-	ret = mdo.IsEqual(m) && mdo.bits == m.(*tMethod).bits
+	ret = mdo.IsEqual(m) && mdo.bits == tmo.bits
 
 	return
 }

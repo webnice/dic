@@ -99,7 +99,11 @@ func (eso *tError) IsEqual(e IError) (ret bool) {
 
 // IsEqualCode Сравнение ошибок только по коду ошибки.
 func (eso *tError) IsEqualCode(e IError) (ret bool) {
+	if e == nil {
+		return
+	}
 	ret = eso.CodeU64().Get() == e.CodeU64().Get()
+
 	return
 }
 

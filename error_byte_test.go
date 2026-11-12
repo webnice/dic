@@ -9,9 +9,11 @@ import (
 
 func TestTError_Bytes(t *testing.T) {
 	const (
-		tpl  = "выполнение действия %q прервано ошибкой: %s"
-		tplA = "func(W7L1O8BC1BBOL3CL9A89)"
-		tplB = "P7V3RRE3F2186U6UMYS8R9NMPWENJ4V28STUJ9XL"
+		tpl       = "выполнение действия %q прервано ошибкой: %s"
+		tplA      = "func(W7L1O8BC1BBOL3CL9A89)"
+		tplB      = "P7V3RRE3F2186U6UMYS8R9NMPWENJ4V28STUJ9XL"
+		tplString = "String(), получено %t, ожидалось %t"
+		tplBytes  = "Bytes(), получено %t, ожидалось %t"
 	)
 	var (
 		ier  IError
@@ -24,12 +26,10 @@ func TestTError_Bytes(t *testing.T) {
 	err = ier.Bind(tplA, tplB)
 	ier = ParseError(err)
 	if tmpT = strings.EqualFold(ier.String(), fmt.Sprintf(tpl, tplA, tplB)); !tmpT {
-		t.Fatalf("String(), получено %t, ожидалось %t", tmpT, true)
-		return
+		t.Fatalf(tplString, tmpT, true)
 	}
 	buf = bytes.NewBufferString(fmt.Sprintf(tpl, tplA, tplB))
 	if tmpT = bytes.EqualFold(ier.Bytes(), buf.Bytes()); !tmpT {
-		t.Fatalf("Bytes(), получено %t, ожидалось %t", tmpT, true)
-		return
+		t.Fatalf(tplBytes, tmpT, true)
 	}
 }

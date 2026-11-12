@@ -7,7 +7,10 @@ import (
 )
 
 func TestTError_IsEqual(t *testing.T) {
-	const errTpl = "ошибка без аргументов"
+	const (
+		errTpl     = "ошибка без аргументов"
+		tplIsEqual = "IsEqual(), получено %t, ожидалось %t"
+	)
 	var (
 		errs *TestCustomError
 		ier1 IError
@@ -21,26 +24,22 @@ func TestTError_IsEqual(t *testing.T) {
 	errs = makeTestCustomErrors()
 	// Тест не корректного вызова.
 	if tmpT = errs.Fatality.IsEqual(ier1); tmpT {
-		t.Fatalf("IsEqual(), получено %t, ожидалось %t", tmpT, false)
-		return
+		t.Fatalf(tplIsEqual, tmpT, false)
 	}
 	// Ошибка совпадающая по якорю.
 	err = errs.Fatality.Bind()
 	if tmpT = errs.Fatality.Is(err); !tmpT {
-		t.Fatalf("IsEqual(), получено %t, ожидалось %t", tmpT, true)
-		return
+		t.Fatalf(tplIsEqual, tmpT, true)
 	}
 	// Ошибка не совпадающая по якорю, но полностью совпадающая по контенту.
 	err = errors.New(errTpl)
 	// Проверка отсутствия совпадения по якорю.
 	if tmpT = errors.Is(errs.Fatality.Anchor(), err); tmpT {
-		t.Fatalf("IsEqual(), получено %t, ожидалось %t", tmpT, false)
-		return
+		t.Fatalf(tplIsEqual, tmpT, false)
 	}
 	// Проверка полного по контенту.
 	if tmpT = errs.Fatality.Is(err); !tmpT {
-		t.Fatalf("IsEqual(), получено %t, ожидалось %t", tmpT, true)
-		return
+		t.Fatalf(tplIsEqual, tmpT, true)
 	}
 	// Сравнение шаблонизированной ошибки TwoArgs.
 	err1 = errs.Fatality.Bind()
@@ -51,28 +50,23 @@ func TestTError_IsEqual(t *testing.T) {
 	ier2 = errs.ParseError(err)
 	// Ошибки должны совпадать.
 	if tmpT = ier1.IsEqual(ier2); !tmpT {
-		t.Fatalf("IsEqual(), получено %t, ожидалось %t", tmpT, true)
-		return
+		t.Fatalf(tplIsEqual, tmpT, true)
 	}
 	// Но текст ошибок разный.
 	if tmpT = strings.EqualFold(ier1.String(), ier2.String()); tmpT {
-		t.Fatalf("IsEqual(), получено %t, ожидалось %t", tmpT, false)
-		return
+		t.Fatalf(tplIsEqual, tmpT, false)
 	}
 	// Ошибки так же не должны совпадать с вложенными ошибками.
 	if tmpT = ier1.Is(err1); tmpT {
-		t.Fatalf("IsEqual(), получено %t, ожидалось %t", tmpT, false)
-		return
+		t.Fatalf(tplIsEqual, tmpT, false)
 	}
 	if tmpT = ier2.Is(err2); tmpT {
-		t.Fatalf("IsEqual(), получено %t, ожидалось %t", tmpT, false)
-		return
+		t.Fatalf(tplIsEqual, tmpT, false)
 	}
 	// Ошибка созданная на основе якоря ошибки.
 	err = errs.Fatality.Anchor()
 	ier1 = errs.ParseError(err, errs)
 	if tmpT = ier1.Is(err); !tmpT {
-		t.Fatalf("IsEqual(), получено %t, ожидалось %t", tmpT, true)
-		return
+		t.Fatalf(tplIsEqual, tmpT, true)
 	}
 }

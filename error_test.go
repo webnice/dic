@@ -6,6 +6,7 @@ import (
 )
 
 func TestTError_Singleton(t *testing.T) {
+	const errRequired = "Не найден один или несколько обязательных ошибок."
 	var (
 		f  map[string]bool
 		rv reflect.Type
@@ -14,15 +15,16 @@ func TestTError_Singleton(t *testing.T) {
 		ok bool
 	)
 
-	f = map[string]bool{
-		"Unknown": false,
-	}
+	// Список обязательных ошибок справочника.
+	f = map[string]bool{"Unknown": false}
+	// Проверка наличия обязательных ошибок в справочнике.
 	rv = reflect.TypeOf(singletonErrors)
 	for n = 0; n < rv.NumField(); n++ {
 		if _, ok = f[rv.Field(n).Name]; ok {
 			f[rv.Field(n).Name] = ok
 		}
 	}
+	// Контроль результата проверки.
 	ok = true
 	for k = range f {
 		if !f[k] {
@@ -30,12 +32,12 @@ func TestTError_Singleton(t *testing.T) {
 		}
 	}
 	if !ok {
-		t.Fatal("Не найден один или несколько обязательных ошибок.")
-		return
+		t.Fatal(errRequired)
 	}
 }
 
 func TestTError_Error(t *testing.T) {
+	const errRequired = "Не найден один или несколько обязательных ошибок."
 	var (
 		f  map[string]bool
 		rv reflect.Type
@@ -44,15 +46,16 @@ func TestTError_Error(t *testing.T) {
 		ok bool
 	)
 
-	f = map[string]bool{
-		"Unknown": false,
-	}
+	// Список обязательных ошибок справочника.
+	f = map[string]bool{"Unknown": false}
+	// Проверка наличия обязательных ошибок в справочнике.
 	rv = reflect.TypeOf(Error())
 	for n = 0; n < rv.NumField(); n++ {
 		if _, ok = f[rv.Field(n).Name]; ok {
 			f[rv.Field(n).Name] = ok
 		}
 	}
+	// Контроль результата проверки.
 	ok = true
 	for k = range f {
 		if !f[k] {
@@ -60,7 +63,6 @@ func TestTError_Error(t *testing.T) {
 		}
 	}
 	if !ok {
-		t.Fatal("Не найден один или несколько обязательных ошибок.")
-		return
+		t.Fatal(errRequired)
 	}
 }
